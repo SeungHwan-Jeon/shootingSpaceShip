@@ -12,7 +12,7 @@ import java.awt.Color;
  * 플레이어가 발사하는 총알 객체.
  * 일정 속도로 위쪽으로 움직이며, 적과 충돌할 수 있음.
  */
-
+// push test 주석
 public class Shot {
 
     private int x_pos; // 총알의 x 좌표
