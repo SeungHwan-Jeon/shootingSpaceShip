@@ -47,8 +47,12 @@ public class Shootingspaceship extends JPanel implements Runnable {
     
     private Random rand; // 난수 생성기 (적 생성용)
     private int maxShotNum = 20; // 최대 총알 수
-    
     private int missileLevel; // 현재 선택된 미사일 타입(레벨)
+    
+    // HUD 변수
+    private Score score;   // 점수
+    private int stageGold = 0; // 이번 스테이지에서 번 골드
+    private int life = 3;  // 남은 목숨
     
     // 생성자: 게임 초기화
     public Shootingspaceship(AppFrame frame, int selectedShipType, int selectedMissileType) {
@@ -66,6 +70,11 @@ public class Shootingspaceship extends JPanel implements Runnable {
         enemies = new ArrayList(); // 적 리스트 초기화
         enemySize = 0;  // 적 수 초기화
         rand = new Random(1); // 난수 생성기: 항상 같은 결과를 위해 시드 고정 (디버그 용이)
+        
+        // HUD 객체 초기화
+        score = new Score();
+        stageGold = 0;
+        life = 3;
         
         // 일정 시간마다 새로운 적을 생성하는 타이머 시작
         timer = new javax.swing.Timer(enemyTimeGap, new addANewEnemy()); 
@@ -180,32 +189,55 @@ public class Shootingspaceship extends JPanel implements Runnable {
             while (enemyList.hasNext()) {
                 Enemy enemy = (Enemy) enemyList.next();
                 enemy.move();
+
+                // 총알과 충돌 → 점수+골드
+                if (enemy.isCollidedWithShot(shots)) {
+                    score.increaseScore();
+                    stageGold++;           // ⭐ 스테이지 내 골드
+                    enemyList.remove();
+                    continue;
+                }
+                
+                // 플레이어와 충돌 → 목숨 감소
+                if (enemy.isCollidedWithPlayer(player)) {
+                    enemyList.remove();
+                    life--;
+                    if (life <= 0) {
+                        endStageAndReturn("Game Over!");
+                        return;
+                    }
+                }
             }
 
             repaint();  // 화면 다시 그리기
 
             // 스테이지 클리어 예시
             if (checkStageClear()) { // 조건이 true라면
-                JOptionPane.showMessageDialog(this, "스테이지 클리어! 메인화면으로 돌아갑니다.");
-                parentFrame.showMainPage(); // 메인화면으로 전환!
+            	endStageAndReturn("스테이지 클리어! 메인화면으로 돌아갑니다.");
                 return; // 게임루프 끝내기
             }
-            
+  
             
             try {
                 Thread.sleep(10); // 다음 프레임까지 잠시 대기
             } catch (InterruptedException ex) {
-                // do nothing
-            }
-            
+            }  
             Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         }
     }
-
-    // 클리어 조건 예시 (진짜 구현은 자유)
+    
+    // 클리어 조건
     private boolean checkStageClear() {
         // "적이 한 번 이상 등장했고, 현재 적이 0마리면 클리어"
         return enemySize > 0 && enemies.isEmpty();
+    }
+    
+
+    // 스테이지 종료 후 골드 누적 반영
+    private void endStageAndReturn(String message) {
+        parentFrame.addGold(stageGold); // 누적!
+        JOptionPane.showMessageDialog(this, message + "\n획득 골드: " + stageGold);
+        parentFrame.showMainPage();
     }
     
     // 더블 버퍼링용 이미지 초기화
@@ -226,27 +258,14 @@ public class Shootingspaceship extends JPanel implements Runnable {
 
     // 실제 게임 화면 그리기
     public void paintComponent(Graphics g) {
-        initImage(g);
-
-        // 플레이어 그림
+        super.paintComponent(g); // double buffering 쓰지 않을 경우
         player.drawPlayer(g);
 
         // 적 그리기 + 충돌 검사
-        Iterator enemyList = enemies.iterator();
-        while (enemyList.hasNext()) {
-            Enemy enemy = (Enemy) enemyList.next();
+        // 적 그리기 + 충돌검사 (이미 위에서 처리함)
+        for (Object obj : enemies) {
+            Enemy enemy = (Enemy) obj;
             enemy.draw(g);
-            
-            // 총알과 충돌했으면 적 제거
-            if (enemy.isCollidedWithShot(shots)) {
-                enemyList.remove();
-            }
-            
-            // 플레이어와 충돌하면 게임 종료
-            if (enemy.isCollidedWithPlayer(player)) {
-                enemyList.remove();
-                System.exit(0); // 강제 종료
-            }
         }
 
         // 총알 그리기
@@ -255,5 +274,14 @@ public class Shootingspaceship extends JPanel implements Runnable {
                 shots[i].drawShot(g);
             }
         }
+        
+        // HUD (점수, 골드, 라이프) 출력
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.setColor(Color.WHITE);
+        g.drawString("Score: " + score.getScore(), 10, 22);
+        g.setColor(Color.YELLOW);
+        g.drawString("Gold: " + stageGold, 10, 42);
+        g.setColor(Color.PINK);
+        g.drawString("Life: " + life, 10, 62);
     }
 }

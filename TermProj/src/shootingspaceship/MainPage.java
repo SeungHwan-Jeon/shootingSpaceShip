@@ -17,6 +17,7 @@ public class MainPage extends JPanel {
     private Clip bgmClip; // 브금
     private FloatControl volumeControl; // 볼륨 조절용
     private JSlider volumeSlider; // 슬라이더
+    private JLabel goldLabel; // 내 골드 표시용
    
     // 생성자에서 AppFrame을 전달받음
     public MainPage(AppFrame frame) {
@@ -26,20 +27,28 @@ public class MainPage extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
         
+        goldLabel = new JLabel("My gold: " + parentFrame.getGold() + " G");
+        goldLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        goldLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        add(goldLabel);
+        add(Box.createRigidArea(new Dimension(0, 8)));
+        
         // 1) BGM 로드 & 무한 반복
         try {
             AudioInputStream in = AudioSystem.getAudioInputStream(
                 getClass().getResource("/bgm/mainPageBGM.wav"));
             bgmClip = AudioSystem.getClip();
             bgmClip.open(in);
+
             if (bgmClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                volumeControl = 
-                  (FloatControl)bgmClip.getControl(FloatControl.Type.MASTER_GAIN);
+                volumeControl = (FloatControl)bgmClip.getControl(FloatControl.Type.MASTER_GAIN);
             }
-            bgmClip.loop(Clip.LOOP_CONTINUOUSLY);
+            setClipVolume(50);               
+            bgmClip.loop(Clip.LOOP_CONTINUOUSLY); 
         } catch (Exception e) {
-            System.err.println("BGM 재생 실패: "+e.getMessage());
+            System.err.println("BGM 재생 실패: " + e.getMessage());
         }
+
         // BGM 끝
         
         // 2) 메인페이지 틀
@@ -77,6 +86,11 @@ public class MainPage extends JPanel {
         btn.addActionListener(al);
         add(btn);
         add(Box.createRigidArea(new Dimension(0,10)));
+    }
+    
+    // 골드 변동 시 업데이트 메서드
+    public void updateGoldDisplay() {
+        goldLabel.setText("내 골드: " + parentFrame.getGold() + " G");
     }
     
     // BGM 중지

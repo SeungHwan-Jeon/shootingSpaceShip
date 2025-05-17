@@ -11,6 +11,8 @@ public class AppFrame extends JFrame {
     private int selectedMissileType = 0;          // 선택된 미사일
     private boolean[] unlockedMissiles = {true, false, false};
 	
+    private int gold = 0; // **프로그램 전체 누적 골드!**
+    
 	public AppFrame() {
 		// 창의 기본 정보 (제목, 크기, 배치 등)
 		setTitle("Shooting Spaceship");
@@ -20,6 +22,17 @@ public class AppFrame extends JFrame {
 		
 		showMainPage();
 	}
+	
+    // 골드 관련 메서드
+    public int getGold() { return gold; }
+    public void addGold(int amount) { gold += amount; }
+    public boolean spendGold(int amount) {
+        if (gold >= amount) {
+            gold -= amount;
+            return true;
+        }
+        return false;
+    }
 	
     // 선택/잠금 상태 getter/setter
     public int getSelectedShipType() { return selectedShipType; }

@@ -6,14 +6,15 @@ import java.awt.event.*;
 
 public class DesignSelectDialog extends JDialog {
     private AppFrame parentFrame;
-
+    private JLabel goldLabel; // 골드 표시 라벨
+    
     // (1) 우주선
     private int selectedShipType;
     private boolean[] unlockedShips;
     private JRadioButton[] shipRadioButtons = new JRadioButton[3];
     private JButton[] shipBuyButtons = new JButton[3];
     private JLabel[] shipPriceLabels = new JLabel[3];
-    private int[] shipPrices = {0, 0, 0};
+    private int[] shipPrices = {0, 1, 0};
 
     // (2) 미사일
     private int selectedMissileType;
@@ -31,6 +32,13 @@ public class DesignSelectDialog extends JDialog {
         this.selectedMissileType = parent.getSelectedMissileType();
         this.unlockedMissiles = parent.getUnlockedMissiles();
 
+        setLayout(new BorderLayout());
+        // 탭 위에 골드 표시 라벨
+        goldLabel = new JLabel("내 골드: " + parentFrame.getGold() + " G");
+        goldLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        JPanel goldPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        goldPanel.add(goldLabel);
+        add(goldPanel, BorderLayout.NORTH);
         JTabbedPane tabPane = new JTabbedPane();
 
         // 우주선 선택 탭
@@ -46,6 +54,11 @@ public class DesignSelectDialog extends JDialog {
         selectBtn.addActionListener(e -> {
             parentFrame.setSelectedShipType(selectedShipType);
             parentFrame.setSelectedMissileType(selectedMissileType);
+            
+            // 메인페이지 골드 갱신
+            if (parentFrame.getContentPane() instanceof MainPage) {
+                ((MainPage)parentFrame.getContentPane()).updateGoldDisplay();
+            }
             dispose();
         });
         btnPanel.add(selectBtn);
@@ -59,11 +72,10 @@ public class DesignSelectDialog extends JDialog {
         setSize(480, 350);
         setLocationRelativeTo(parent);
     }
-
+    
     private JPanel createShipPanel() {
         JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
         ButtonGroup group = new ButtonGroup();
-
         for (int i = 0; i < 3; i++) {
             JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
             ImageIcon icon = new ImageIcon(Player.shipImages[i].getScaledInstance(64, 64, Image.SCALE_SMOOTH));
@@ -81,13 +93,19 @@ public class DesignSelectDialog extends JDialog {
             shipBuyButtons[i] = new JButton("구매");
             shipBuyButtons[i].setEnabled(!unlockedShips[i]);
             shipBuyButtons[i].addActionListener(e -> {
-                unlockedShips[idx] = true;
-                parentFrame.unlockShip(idx);
-                shipPriceLabels[idx].setText("구매완료");
-                shipBuyButtons[idx].setEnabled(false);
-                shipRadioButtons[idx].setEnabled(true);
-                shipRadioButtons[idx].setSelected(true);
-                selectedShipType = idx;
+                int price = shipPrices[idx];
+                if (parentFrame.spendGold(price)) {
+                    unlockedShips[idx] = true;
+                    parentFrame.unlockShip(idx);
+                    shipPriceLabels[idx].setText("구매완료");
+                    shipBuyButtons[idx].setEnabled(false);
+                    shipRadioButtons[idx].setEnabled(true);
+                    shipRadioButtons[idx].setSelected(true);
+                    selectedShipType = idx;
+                    updateGoldDisplay();
+                } else {
+                    JOptionPane.showMessageDialog(this, "골드가 부족합니다!");
+                }
             });
 
             row.add(iconLabel);
@@ -102,7 +120,6 @@ public class DesignSelectDialog extends JDialog {
     private JPanel createMissilePanel() {
         JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
         ButtonGroup group = new ButtonGroup();
-
         for (int i = 0; i < 3; i++) {
             JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
             ImageIcon icon = new ImageIcon(Shot.getMissileImage(i).getScaledInstance(32, 32, Image.SCALE_SMOOTH));
@@ -120,13 +137,19 @@ public class DesignSelectDialog extends JDialog {
             missileBuyButtons[i] = new JButton("구매");
             missileBuyButtons[i].setEnabled(!unlockedMissiles[i]);
             missileBuyButtons[i].addActionListener(e -> {
-                unlockedMissiles[idx] = true;
-                parentFrame.unlockMissile(idx);
-                missilePriceLabels[idx].setText("구매완료");
-                missileBuyButtons[idx].setEnabled(false);
-                missileRadioButtons[idx].setEnabled(true);
-                missileRadioButtons[idx].setSelected(true);
-                selectedMissileType = idx;
+                int price = missilePrices[idx];
+                if (parentFrame.spendGold(price)) {
+                    unlockedMissiles[idx] = true;
+                    parentFrame.unlockMissile(idx);
+                    missilePriceLabels[idx].setText("구매완료");
+                    missileBuyButtons[idx].setEnabled(false);
+                    missileRadioButtons[idx].setEnabled(true);
+                    missileRadioButtons[idx].setSelected(true);
+                    selectedMissileType = idx;
+                    updateGoldDisplay();
+                } else {
+                    JOptionPane.showMessageDialog(this, "골드가 부족합니다!");
+                }
             });
 
             row.add(iconLabel);
@@ -137,4 +160,10 @@ public class DesignSelectDialog extends JDialog {
         }
         return panel;
     }
+
+    // 골드 라벨 갱신
+    private void updateGoldDisplay() {
+        goldLabel.setText("My gold: " + parentFrame.getGold() + " G");
+    }
+
 }
