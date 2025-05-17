@@ -48,8 +48,10 @@ public class Shootingspaceship extends JPanel implements Runnable {
     private Random rand; // 난수 생성기 (적 생성용)
     private int maxShotNum = 20; // 최대 총알 수
     
+    private int missileLevel; // 현재 선택된 미사일 타입(레벨)
+    
     // 생성자: 게임 초기화
-    public Shootingspaceship(AppFrame frame) {
+    public Shootingspaceship(AppFrame frame, int selectedShipType, int selectedMissileType) {
     	this.parentFrame = frame;
     	
         setBackground(Color.black); // 배경색 설정
@@ -57,6 +59,9 @@ public class Shootingspaceship extends JPanel implements Runnable {
         
         // 플레이어 초기화: 화면 아래쪽 중앙에 생성
         player = new Player(width / 2, (int) (height * 0.9), playerMargin, width-playerMargin );
+        player.setShipType(selectedShipType); // 우주선 선택
+        missileLevel = selectedMissileType; // 미사일 선택
+        
         shots = new Shot[ maxShotNum ]; // 총알 배열 초기화 (null로 가득 찬 상태)
         enemies = new ArrayList(); // 적 리스트 초기화
         enemySize = 0;  // 적 수 초기화
@@ -71,7 +76,7 @@ public class Shootingspaceship extends JPanel implements Runnable {
         setFocusable(true);
     }
 
-    // 게임 루프 시작
+	// 게임 루프 시작
     public void start() {
         th = new Thread(this); // Runnable 구현 클래스니까 바로 스레드 생성 가능
         th.start(); // run() 호출됨
@@ -119,7 +124,7 @@ public class Shootingspaceship extends JPanel implements Runnable {
                 	// 총알을 하나 생성해 빈 공간에 추가
                     for (int i = 0; i < shots.length; i++) {
                         if (shots[i] == null) {
-                            shots[i] = player.generateShot();
+                            shots[i] = player.generateShot(missileLevel);
                             break;
                         }
                     }
@@ -251,9 +256,4 @@ public class Shootingspaceship extends JPanel implements Runnable {
             }
         }
     }
-
-    /**
-     * @param args the command line arguments
-     */
-    
 }
