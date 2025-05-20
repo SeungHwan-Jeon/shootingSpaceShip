@@ -1,4 +1,4 @@
-package shootingspaceship;
+package shootingspaceship.model;
 
 import java.awt.*;
 import java.util.ArrayList;

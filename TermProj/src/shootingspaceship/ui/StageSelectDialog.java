@@ -1,4 +1,4 @@
-package shootingspaceship;
+package shootingspaceship.ui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +28,7 @@ public class StageSelectDialog extends JDialog {
         ButtonGroup group = new ButtonGroup();
         JRadioButton[] radios = new JRadioButton[4];
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; ++i) {
             JPanel col = new JPanel(new BorderLayout());
             ImageIcon icon = new ImageIcon(getClass().getResource(thumbPaths[i]));
             

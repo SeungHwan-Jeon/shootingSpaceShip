@@ -1,6 +1,10 @@
-package shootingspaceship;
+package shootingspaceship.ui;
 
 import javax.swing.*;
+
+import shootingspaceship.model.Item;
+import shootingspaceship.model.ItemStorage;
+
 import java.awt.*;
 import java.awt.event.*;
 

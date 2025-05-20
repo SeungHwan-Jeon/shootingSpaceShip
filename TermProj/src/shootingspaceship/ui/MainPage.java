@@ -1,4 +1,4 @@
-package shootingspaceship;
+package shootingspaceship.ui;
 
 import javax.sound.sampled.*;
 import javax.swing.*;

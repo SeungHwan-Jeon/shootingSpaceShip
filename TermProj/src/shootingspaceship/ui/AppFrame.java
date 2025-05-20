@@ -1,6 +1,8 @@
-package shootingspaceship;
+package shootingspaceship.ui;
 
 import javax.swing.*;
+
+import shootingspaceship.model.Item;
 
 /*
  * 프로그램 전체 대표하는 창(Frame) 
@@ -90,12 +92,5 @@ public class AppFrame extends JFrame {
     public void showItemSelectDialog() {
         ItemSelectDialog dialog = new ItemSelectDialog(this);
         dialog.setVisible(true);
-    }
-    
-    // 프로그램 시작 (main)
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new AppFrame().setVisible(true);
-        });
     }
 }

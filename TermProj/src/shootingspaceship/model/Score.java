@@ -1,4 +1,4 @@
-package shootingspaceship;
+package shootingspaceship.model;
 
 /*
  * Score 클래스

@@ -1,4 +1,4 @@
-package shootingspaceship;
+package shootingspaceship.model;
 
 /*
  * Stage 클래스

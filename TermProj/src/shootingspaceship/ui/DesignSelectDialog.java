@@ -1,6 +1,10 @@
-package shootingspaceship;
+package shootingspaceship.ui;
 
 import javax.swing.*;
+
+import shootingspaceship.model.Player;
+import shootingspaceship.model.Shot;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -83,7 +87,7 @@ public class DesignSelectDialog extends JDialog {
     private JPanel createShipPanel() {
         JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10)); // 우주선 늘어나면 다른 레이아웃 필요할수도?
         ButtonGroup group = new ButtonGroup();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; ++i) {
             JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
             ImageIcon icon = new ImageIcon(Player.shipImages[i].getScaledInstance(64, 64, Image.SCALE_SMOOTH));
             JLabel iconLabel = new JLabel(icon);
@@ -131,7 +135,7 @@ public class DesignSelectDialog extends JDialog {
     private JPanel createMissilePanel() {
         JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
         ButtonGroup group = new ButtonGroup();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; ++i) {
             JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT));
             ImageIcon icon = new ImageIcon(Shot.getMissileImage(i).getScaledInstance(32, 32, Image.SCALE_SMOOTH));
             JLabel iconLabel = new JLabel(icon);
