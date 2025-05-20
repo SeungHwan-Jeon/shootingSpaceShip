@@ -124,12 +124,12 @@ public class Shootingspaceship extends JPanel implements Runnable {
 					int x = rand.nextInt(width - 40) + 20;
 					int y = 0;
 					enemies.add(new Enemy(x, y, 0, currentStage.getEnemySpeed(), width, height, 0,
-							currentStage.getEnemyHp()));
+							currentStage.getEnemyHp(), 18 ));
 					spawned++;
 					// 다음 등장까지 랜덤
 					enemySpawnTimer.setDelay(400 + rand.nextInt(800));
 				} else if (currentStage.hasBoss() && !bossSpawned) {
-					enemies.add(new BossEnemy(width / 2, 0, currentStage.getBossHp(), currentStage.getBossSpeed()));
+					enemies.add(new BossEnemy(width / 2, 0, currentStage.getBossHp(), currentStage.getBossSpeed(), 28));
 					bossSpawned = true;
 					enemySpawnTimer.stop();
 				} else {

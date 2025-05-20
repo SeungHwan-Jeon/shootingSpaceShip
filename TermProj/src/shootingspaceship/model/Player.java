@@ -12,7 +12,9 @@ import javax.imageio.ImageIO;
 public class Player {
     private int x_pos, y_pos; // 내 위치
     private int min_x, max_x; // 좌우 이동 제한 (화면 경계)
+    private int radius = 32;  // 우주선 크기/히트박스 반지름 (마음대로 조절 가능)
     private int shipType = 0; // 현재 선택된 우주선 스킨 인덱스
+    
     public static Image[] shipImages = new Image[3]; // 우주선 스킨 이미지
 
     static {
@@ -28,15 +30,22 @@ public class Player {
         x_pos = x; y_pos = y; this.min_x = min_x; this.max_x = max_x;
     }
     
+    // 히트박스 반지름을 동적으로 변경
+    public void setRadius(int r) { radius = r; }
+    public int getRadius() { return radius; }
+    
+    // 플레이어 중심 좌표 반환 (원형 충돌용)
+    public Point getCenter() { return new Point(x_pos, y_pos); }
+    
     // 우주선 스킨 변경 및 조회 함수
     public void setShipType(int type) { this.shipType = type % 3; } // 잘못된 값 입력 방지. 스킨 수 늘면 조정 필요
     public int getShipType() { return this.shipType; }
     
-    // 좌우 이동
+    // 좌우 이동 (중심 좌표와 반지름 기준 경계)
     public void moveX(int speed) {
         x_pos += speed;
-        if( x_pos < min_x) x_pos = min_x;
-        if( x_pos > max_x) x_pos = max_x;
+        if( x_pos - radius < min_x) x_pos = min_x + radius;
+        if( x_pos + radius > max_x) x_pos = max_x - radius;
     }
     
     public int getX() { return x_pos; }
@@ -52,25 +61,30 @@ public class Player {
         };
     }
 
-    // 실제로 그릴 때 (paintComponent 에서 호출)
+    // 실제로 그릴 때 (중심 기준)
     public void drawPlayer(Graphics g) {
         Image img = shipImages[shipType];
         if (img != null) {
-            g.drawImage(img, x_pos - 32, y_pos - 32, 64, 64, null);
+            g.drawImage(img, x_pos - radius, y_pos - radius, radius*2, radius*2, null);
         } else {
             g.setColor(Color.red);
             int[] x_poly = {x_pos, x_pos - 10, x_pos, x_pos + 10};
             int[] y_poly = {y_pos, y_pos + 15, y_pos + 10, y_pos + 15};
             g.fillPolygon(x_poly, y_poly, 4);
         }
+        // 디버깅 용 히트박스 활성화
+         g.setColor(new Color(255,0,0,60));
+         g.drawOval(x_pos - radius, y_pos - radius, radius*2, radius*2);
     }
     
-    // 적 총알에 맞았는지 판정 (적 총알아 내 히트박스에 들어오면 true)
+    // 적 총알에 맞았는지(원형 히트박스 기준)
     public boolean isHit(int bulletX, int bulletY) {
-        int playerWidth = 30, playerHeight = 30; // 히트박스 크기
-        int px = this.x_pos, py = this.y_pos;
-        return bulletX >= px && bulletX <= (px + playerWidth) && bulletY >= py && bulletY <= (py + playerHeight);
+        int dx = x_pos - bulletX;
+        int dy = y_pos - bulletY;
+        double dist = Math.sqrt(dx*dx + dy*dy);
+        return dist < radius;
     }
+    
     private boolean isDead = false;
     public void setDead() { isDead = true; }
     public boolean isDead() { return isDead; }
